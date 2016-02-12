@@ -1,0 +1,5 @@
+pip
+setuptools
+wheel
+drone==0.3.0
+devpi-client==2.4.1
