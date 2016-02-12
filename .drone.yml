@@ -13,12 +13,10 @@ compose:
 
 publish:
   docker:
-    # TODO: Set this back to 'drone'
-    username: gtaylor
+    username: $$DOCKER_USER
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
-    # TODO: Re-point this at plugins/drone-devpi
-    repo: gtaylor/drone-devpi
+    repo: plugins/drone-devpi
     when:
       branch: master
 
