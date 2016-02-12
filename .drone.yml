@@ -13,7 +13,8 @@ compose:
 
 publish:
   docker:
-    username: drone
+    # TODO: Set this back to 'drone'
+    username: gtaylor
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
     # TODO: Re-point this at plugins/drone-devpi
