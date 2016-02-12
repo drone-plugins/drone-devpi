@@ -1,0 +1,13 @@
+.idea
+*.swp
+*~
+*.tmp
+
+testpkg/dist/
+
+# Drone-related
+wheeldir
+
+# Python stuffs
+*.egg-info
+*.pyc
