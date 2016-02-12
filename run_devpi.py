@@ -5,6 +5,7 @@ Everything needed to publish Python modules to a DevPi server.
 Recommended reading: http://doc.devpi.net/latest/quickstart-releaseprocess.html
 """
 import sys
+import urllib.parse
 
 import drone
 import subprocess
@@ -105,9 +106,39 @@ def upload_package(path, clientdir=DEFAULT_CLIENTDIR):
     return cmd
 
 
+def check_vargs(vargs):
+    """
+    Check over the args passed in to make sure that we have everything we
+    need to get the upload done. Exit with code 1 if the input is bad.
+
+    :param dict vargs: Contents of the 'vargs' JSON array in the
+        the plugin input.
+    """
+    server_uri = vargs.get('server', '')
+    parsed = urllib.parse.urlsplit(server_uri)
+    if not all([parsed.scheme, parsed.netloc]):
+        print(
+            "You must specify the full, absolute URI to your devpi server "
+            "(including protocol).")
+        sys.exit(1)
+    index = vargs.get('index')
+    if not index:
+        print("You must specify an index on your devpi server to upload to.")
+        sys.exit(1)
+    username = vargs.get('username')
+    if not username:
+        print("You must specify a username to upload packages as.")
+        sys.exit(1)
+    password = vargs.get('password')
+    if password is None:
+        print("You must specify a password.")
+        sys.exit(1)
+
+
 def main():
     payload = drone.plugin.get_input()
-    vargs = payload["vargs"]
+    vargs = payload['vargs']
+    check_vargs(vargs)
 
     select_server(vargs['server'])
     login(vargs['username'], vargs['password'])
