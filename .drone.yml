@@ -1,15 +1,11 @@
 pipeline:
   build:
-    image: python:3.5.1-alpine
+    image: muccg/devpi:latest
     commands:
       - pip install --no-cache-dir --upgrade pip setuptools wheel flake8
       - flake8 run_devpi.py
       - pip wheel -r requirements.txt --wheel-dir=wheeldir --find-links=wheeldir
       - pip install --use-wheel --no-index --find-links=wheeldir -r requirements.txt
-
-  test:
-    image: muccg/devpi:latest
-    commands:
       - python test.py
 
   publish:
