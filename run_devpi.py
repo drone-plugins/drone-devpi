@@ -135,11 +135,12 @@ def check_vargs(vargs):
         print("You must specify a password.")
         sys.exit(1)
 
+
 def extract_vargs(payload):
     vargs = {}
     for k in payload:
         if 'PLUGIN_' in k:
-            vargs[k.replace('PLUGIN_','').lower()] = payload[k]
+            vargs[k.replace('PLUGIN_', '').lower()] = payload[k]
     return vargs
 
 
@@ -152,11 +153,12 @@ def main():
     login(vargs['username'], vargs['password'])
     select_index(vargs['index'])
     package_path = os.path.join(
-        '/drone/src/', 
-        payload['DRONE_NETRC_MACHINE'], 
+        '/drone/src/',
+        payload['DRONE_NETRC_MACHINE'],
         payload['DRONE_REPO_OWNER'],
         payload['DRONE_REPO_NAME'])
     upload_package(package_path)
+
 
 if __name__ == "__main__":
     main()
