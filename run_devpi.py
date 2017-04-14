@@ -5,10 +5,11 @@ Everything needed to publish Python modules to a DevPi server.
 Recommended reading: http://doc.devpi.net/latest/quickstart-releaseprocess.html
 """
 import sys
+
+import os
+import subprocess
 import urllib.parse
 
-import drone
-import subprocess
 
 # devpi uses a 'clientdir' arg to determine where to store state. We make
 # this overridable below to facilitate the integration test process.
@@ -134,16 +135,28 @@ def check_vargs(vargs):
         print("You must specify a password.")
         sys.exit(1)
 
+def extract_vargs(payload):
+    vargs = {}
+    for k in payload:
+        if 'PLUGIN_' in k:
+            vargs[k.replace('PLUGIN_','').lower()] = payload[k]
+    return vargs
+
 
 def main():
-    payload = drone.plugin.get_input()
-    vargs = payload['vargs']
+    payload = os.environ
+    vargs = extract_vargs(payload)
     check_vargs(vargs)
 
     select_server(vargs['server'])
     login(vargs['username'], vargs['password'])
     select_index(vargs['index'])
-    upload_package(payload['workspace']['path'])
+    package_path = os.path.join(
+        '/drone/src/', 
+        payload['DRONE_NETRC_MACHINE'], 
+        payload['DRONE_REPO_OWNER'],
+        payload['DRONE_REPO_NAME'])
+    upload_package(package_path)
 
 if __name__ == "__main__":
     main()
