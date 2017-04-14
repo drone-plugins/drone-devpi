@@ -1,12 +1,13 @@
 pipeline:
   build:
-    image: muccg/devpi:latest
+    image: python:3.5-alpine
     commands:
       - pip install --no-cache-dir --upgrade pip setuptools wheel flake8
       - flake8 run_devpi.py
       - pip wheel -r requirements.txt --wheel-dir=wheeldir --find-links=wheeldir
       - pip install --use-wheel --no-index --find-links=wheeldir -r requirements.txt
       - python test.py
+
 
   publish:
     image: plugins/docker
@@ -16,3 +17,8 @@ pipeline:
     repo: plugins/drone-devpi
     when:
       branch: master
+
+
+services:
+  devpi:
+    image: muccg/devpi:latest
