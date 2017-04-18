@@ -16,7 +16,7 @@ class DevpiTestCase(unittest.TestCase):
         'DRONE_NETRC_MACHINE': 'localhost',
         'DRONE_REPO_OWNER': 'testpkg',
         'DRONE_REPO_NAME': 'testpkg',
-        'PLUGIN_SERVER': 'http://127.0.0.1:3141', 
+        'PLUGIN_SERVER': 'http://localhost:3141', 
         'PLUGIN_INDEX': 'root/devpitest', 
         'PLUGIN_USERNAME': 'root',
         'PLUGIN_PASSWORD': '' 
