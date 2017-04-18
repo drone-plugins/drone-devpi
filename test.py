@@ -62,11 +62,9 @@ class DevpiTestCase(unittest.TestCase):
         t_vargs = run_devpi.extract_vargs(env)
         run_devpi.select_server(
             t_vargs['server'], clientdir=clientdir)
-        print('select ok')
         run_devpi.login(
             t_vargs['username'], t_vargs['password'],
             clientdir=self.default_clientdir)
-        print('login ok')
         try:
             run_devpi.create_index(
                 t_vargs['index'], clientdir=clientdir)
