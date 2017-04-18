@@ -48,7 +48,6 @@ class DevpiTestCase(unittest.TestCase):
             try:
                 run_devpi.select_server(
                     vargs['server'], clientdir=clientdir)
-                print('serv ok')
             except SystemExit:
                 retries_left -= 1
                 time.sleep(1)
