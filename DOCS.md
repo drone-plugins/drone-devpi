@@ -10,7 +10,7 @@ Use the devpi plugin to deploy a Python package to a [devpi](http://doc.devpi.ne
 The following is an example configuration for your .drone.yml:
 
 ```yaml
-publish:
+pipeline:
   devpi:
     server: http://devpi.bigco.com:3141/
     index: root/production

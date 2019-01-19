@@ -12,16 +12,14 @@ TEST_PACKAGE_PATH = os.path.join(BASE_PATH, 'testpkg')
 
 
 class DevpiTestCase(unittest.TestCase):
-    basic_input = {
-        "workspace": {
-            "path": TEST_PACKAGE_PATH,
-        },
-        "vargs": {
-            "server": "http://localhost:3141/",
-            "index": "root/devpitest",
-            "username": "root",
-            "password": "",
-        }
+    payload = {  
+        'DRONE_NETRC_MACHINE': 'localhost',
+        'DRONE_REPO_OWNER': 'testpkg',
+        'DRONE_REPO_NAME': 'testpkg',
+        'PLUGIN_SERVER': 'http://localhost:3141', 
+        'PLUGIN_INDEX': 'root/devpitest', 
+        'PLUGIN_USERNAME': 'root',
+        'PLUGIN_PASSWORD': '' 
     }
     # We'll override the default clientdir while creating our index below.
     default_clientdir = '/tmp/devpi-testclientdir'
@@ -30,7 +28,7 @@ class DevpiTestCase(unittest.TestCase):
     def setUpClass(cls):
         # We'll only do this once so we're not hammering the server if we
         # grow this test suite.
-        cls._wait_for_devpi_to_start(cls.basic_input, cls.default_clientdir)
+        cls._wait_for_devpi_to_start(cls.payload, cls.default_clientdir)
 
     def setUp(self):
         self.old_argv_val = sys.argv
@@ -39,28 +37,29 @@ class DevpiTestCase(unittest.TestCase):
         sys.argv = self.old_argv_val
 
     @classmethod
-    def _wait_for_devpi_to_start(cls, input_dict, clientdir):
+    def _wait_for_devpi_to_start(cls, env, clientdir):
         """
         devpi is a bit... pokey while starting. We'll just harass it until
         it responds before doing the rest of the tests.
         """
+        vargs = run_devpi.extract_vargs(env)
         retries_left = 30
         while retries_left > 0:
             try:
                 run_devpi.select_server(
-                    input_dict['vargs']['server'], clientdir=clientdir)
+                    vargs['server'], clientdir=clientdir)
             except SystemExit:
                 retries_left -= 1
                 time.sleep(1)
                 continue
             return
 
-    def _ensure_test_index_exists(self, input_dict, clientdir):
+    def _ensure_test_index_exists(self, env, clientdir):
         """
         Since Drone fires up a new devpi server for each test run, we'll
         need to create an index before we can upload.
         """
-        t_vargs = input_dict['vargs']
+        t_vargs = run_devpi.extract_vargs(env)
         run_devpi.select_server(
             t_vargs['server'], clientdir=clientdir)
         run_devpi.login(
@@ -76,32 +75,36 @@ class DevpiTestCase(unittest.TestCase):
         """
         Tests a simple package upload to an existing DevPi server.
         """
+
         self._ensure_test_index_exists(
-            self.basic_input, self.default_clientdir)
-        sys.argv = ['--', json.dumps(self.basic_input)]
-        run_devpi.main()
+            self.payload, self.default_clientdir)
+
+        vargs = run_devpi.extract_vargs(self.payload)
+
+        run_devpi.select_server(vargs['server'])
+        run_devpi.login(vargs['username'], vargs['password'])
+        run_devpi.select_index(vargs['index'])
+        package_path = os.path.join(
+            self.payload['DRONE_REPO_NAME'])
+        run_devpi.upload_package(package_path)
 
 
 class ValidationTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.basic_input = {
-            "workspace": {
-                "path": TEST_PACKAGE_PATH,
-            },
-            "vargs": {
-                "server": "http://localhost:3141/",
-                "index": "root/devpitest",
-                "username": "root",
-                "password": "",
+        self.payload = {  
+            'PLUGIN_SERVER': 'http://localhost:3141/', 
+            'PLUGIN_INDEX': 'root/devpitest', 
+            'PLUGIN_USERNAME': 'root',
+            'PLUGIN_PASSWORD': '' 
             }
-        }
 
     def test_vargs_server_validation(self):
         """
         Tests validation for vargs server keyword.
         """
-        vargs = self.basic_input.copy()['vargs']
+
+        vargs = run_devpi.extract_vargs(self.payload)
         # Start the party with something weird.
         vargs['server'] = 'blah'
         self.assertRaises(SystemExit, run_devpi.check_vargs, vargs)

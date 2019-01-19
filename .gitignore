@@ -12,3 +12,6 @@ secrets.yml
 # Python stuffs
 *.egg-info
 *.pyc
+
+data/
+docker-compose.yml
